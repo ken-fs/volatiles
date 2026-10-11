@@ -32,6 +32,8 @@ jobs:
           SITE_URL: https://volatiles.wiki
           INDEXNOW_KEY: ${{ vars.INDEXNOW_KEY }}
           PUBLIC_GA_ID: ${{ vars.PUBLIC_GA_ID }}
+          PUBLIC_ADSTERRA_SLOT_INCONTENT_728X90: ${{ vars.PUBLIC_ADSTERRA_SLOT_INCONTENT_728X90 }}
+          PUBLIC_ADSTERRA_SLOT_HOMEPAGE_300X250: ${{ vars.PUBLIC_ADSTERRA_SLOT_HOMEPAGE_300X250 }}
 
       - name: Deploy
         run: pnpm exec wrangler deploy

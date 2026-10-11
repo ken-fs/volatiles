@@ -23,6 +23,7 @@ import LocaleLayout from '~/components/layout/LocaleLayout.astro';
 import VideoSection from '~/components/home/VideoSection.astro';
 import QuickStart from '~/components/home/QuickStart.astro';
 import ExploreModules from '~/components/home/ExploreModules.astro';
+import AdsterraSlot from '~/components/ads/AdsterraSlot.astro';
 import { site } from '~/config/site';
 import { NAVIGATION_CONFIG } from '~/config/navigation';
 import { type Locale } from '~/i18n/routing';
@@ -236,6 +237,11 @@ function trendingLabel(link: QuickLink): string {
       )}
     </div>
   </section>
+
+  {/* ───────────────── Adsterra 300×250 (mid-page) ─────────────────── */}
+  <div class="mx-auto flex justify-center px-4 py-8">
+    <AdsterraSlot name="homepage-300x250" width={300} height={250} />
+  </div>
 
   {/* ──────────────────────────── Explore Modules ─────────────────────── */}
   {
