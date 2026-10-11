@@ -1,0 +1,64 @@
+/* ═══ game-themes / terminal —— 磷光终端 ═════════════════════════════
+   参考：superdesign.dev「Terminal Portfolio: Retro CRT Phosphor-Green」+「Electric Phosphor Terminal」
+   适合：黑客 / 编程 / 恐怖解谜 ARG / 后室 Backrooms / SCP / 肉鸽 / 复古 PC / 模组 & 指令工具
+   签名动作：近黑底 + 磷光绿发光字、全站等宽（这套里是主题语言）、CRT 扫描线、终端窗口外框、$ 提示符按钮
+   对比度：绿字 15.1；faint 6.3；琥珀 #ffd24a 只做「在线 / 警告」状态（14.0）
+   需要：npm i @fontsource-variable/jetbrains-mono @fontsource/ibm-plex-mono
+*/
+@import "@fontsource-variable/jetbrains-mono";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+
+@theme {
+  --color-paper:      #050805;
+  --color-paper-edge: #081008;
+  --color-card:       #0b120c;
+  --color-ink:        #39ff7a;
+  --color-ink-soft:   #8fd9a3;
+  --color-ink-faint:  #5f9d72;
+  --color-rule:       #123018;
+  --color-rule-hard:  #1c7a3c;
+  --color-rust:       #39ff7a;   /* 主强调 = 磷光绿本身 */
+  --color-ember-lite: #7dffa8;
+  --color-ochre:      #ffd24a;   /* 琥珀：状态灯 */
+  --color-moss:       #39ff7a;
+  --font-serif: "JetBrains Mono Variable", ui-monospace, monospace;
+  --font-sans:  "IBM Plex Mono", ui-monospace, monospace;
+  --font-mono:  "JetBrains Mono Variable", ui-monospace, monospace;
+  --font-code:  "JetBrains Mono Variable", ui-monospace, monospace;
+}
+
+body {
+  background-color: var(--color-paper);
+  background-image: radial-gradient(60rem 40rem at 50% 0%, color-mix(in srgb, var(--color-ink) 7%, transparent), transparent 70%);
+  background-attachment: fixed;
+  color: var(--color-ink-soft); font-family: var(--font-sans); font-size: 15px; -webkit-font-smoothing: antialiased;
+}
+body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 60; opacity: .25;
+  background: repeating-linear-gradient(0deg, rgb(0 0 0 / .55) 0 1px, transparent 1px 3px); }
+h1, h2 { font-family: var(--font-serif); font-weight: 700; letter-spacing: -0.02em; line-height: 1.08; color: #eafff0;
+  text-shadow: 0 0 18px color-mix(in srgb, var(--color-ink) 45%, transparent); text-wrap: balance; }
+h1::after { content: "_"; color: var(--color-ink); animation: term-blink 1.1s steps(1) infinite; }
+h3, h4 { font-family: var(--font-serif); font-weight: 600; color: var(--color-ink); }
+@keyframes term-blink { 50% { opacity: 0; } }
+
+.tag { display: inline-block; font-size: .75rem; padding: .05rem .4rem; color: var(--color-paper); background: var(--color-ink); }
+.tag::before { content: "["; } .tag::after { content: "]"; }
+.card, .tile { position: relative; background: var(--color-card); border: 1px solid var(--color-rule-hard); border-radius: 6px; }
+.card::before { content: "$ open"; position: absolute; top: .5rem; right: .7rem; font-size: .7rem; color: var(--color-ink-faint); }
+.card { transition: border-color .2s, box-shadow .2s; }
+.card:hover { color: inherit; border-color: var(--color-ink); box-shadow: 0 0 0 1px var(--color-ink), 0 0 26px -6px color-mix(in srgb, var(--color-ink) 60%, transparent); }
+
+.btn-ember { display: inline-flex; align-items: center; gap: .5rem; font-family: var(--font-mono); font-weight: 700; font-size: .9rem;
+  padding: .6rem 1rem; color: var(--color-paper); background: var(--color-ink); border-radius: 4px;
+  box-shadow: 0 0 22px -4px color-mix(in srgb, var(--color-ink) 70%, transparent); }
+.btn-ember::before { content: "$ "; }
+.btn-ember:hover { color: var(--color-paper); background: var(--color-ember-lite); }
+
+/* 首屏：终端窗口的三个红绿灯 + 一圈外框 */
+.hero-glow { position: absolute; inset: -1.5rem -1.5rem auto -1.5rem; height: calc(100% + 1rem); pointer-events: none; z-index: -1;
+  border: 1px solid var(--color-rule-hard); border-radius: 10px; background: color-mix(in srgb, var(--color-card) 70%, transparent); }
+.hero-glow span { position: absolute; top: .8rem; width: 11px; height: 11px; border-radius: 50%; }
+.hero-glow span:nth-child(1) { left: 1rem; background: #ff5f57; }
+.hero-glow span:nth-child(2) { left: 2.1rem; background: var(--color-ochre); }
+.hero-glow span:nth-child(3) { left: 3.2rem; background: var(--color-ink); }

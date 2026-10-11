@@ -1,0 +1,23 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "volatiles",
+  "compatibility_date": "2026-10-11",
+  // Static site: Astro emits ./dist, served directly as assets.
+  // Build:  SITE_URL=https://volatiles.wiki pnpm run build
+  // Deploy: npx wrangler deploy   (normally done by CI on push to main — see TEMPLATE.md)
+  // SITE_URL is BUILD-time only (astro.config.ts reads process.env at build);
+  // without it the build falls back to https://<site.domain> from src/config/site.ts.
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash"
+  },
+  // Custom domains (apex + www). ⚠️ The Cloudflare zone must be ACTIVE before the
+  // first deploy that carries these routes — binding while the zone is pending
+  // leaves the certificate unissued (TLS handshake reads 0 bytes) and CF does not retry.
+  // www is bound so it resolves; add the 301 with Ship/scripts/cf-www-redirect.py.
+  "routes": [
+    { "pattern": "volatiles.wiki", "custom_domain": true },
+    { "pattern": "www.volatiles.wiki", "custom_domain": true }
+  ]
+}

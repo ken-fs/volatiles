@@ -1,0 +1,239 @@
+{
+  "$schema": "../../docs/home.schema.json",
+  "site": {
+    "name": "Volatiles Wiki",
+    "shortName": "Volatiles",
+    "description": "Volatiles guides: working codes, beginner tips and progression guides, checked after every game update.",
+    "tagline": "Codes, guides and tips, checked after every update.",
+    "legalNotice": "Fan-made resource. Not affiliated with the developer of Volatiles."
+  },
+  "nav": {
+    "home": "Home",
+    "toggleTheme": "Toggle theme",
+    "menu": "Menu",
+    "close": "Close",
+    "search": "Search",
+    "language": "Language",
+    "codes": "Codes",
+    "guides": "Guides"
+  },
+  "search": {
+    "placeholder": "Search the wiki...",
+    "noResults": "No matches found",
+    "loadError": "Search failed to load — refresh the page and try again."
+  },
+  "shared": {
+    "lastUpdated": "Last updated",
+    "publishedOn": "Published",
+    "noArticles": "No articles yet. Check back soon!",
+    "defaultListDescription": "Browse every {title} article — walkthroughs, tips, tier lists and up-to-date reference tables, all in one place.",
+    "relatedArticles": "Related Articles",
+    "onThisPage": "On this page",
+    "browseAll": "Browse all",
+    "viewAll": "View all",
+    "commentsHeading": "Comments",
+    "share": "Share",
+    "copyLink": "Copy link",
+    "copied": "Copied!",
+    "consentText": "We use cookies for analytics and ads to keep this site free.",
+    "accept": "Accept",
+    "decline": "Decline",
+    "consentTitle": "Cookies",
+    "bossCard": {
+      "title": "Boss Overview",
+      "hp": "HP",
+      "weakness": "Weakness",
+      "resistant": "Resistant",
+      "location": "Location",
+      "level": "Rec. Level"
+    },
+    "codesTable": {
+      "active": "Active Codes",
+      "expired": "Expired Codes",
+      "reward": "Reward",
+      "expires": "Expires",
+      "source": "Source",
+      "code": "Code"
+    },
+    "codesFaq": [
+      {
+        "question": "How do I redeem codes?",
+        "answer": "Open the game, click the settings gear in the top-right, paste your code into the Redeem Code field, and confirm. Codes are case-sensitive."
+      },
+      {
+        "question": "Why do codes stop working?",
+        "answer": "Codes expire on a schedule set by the developer (usually monthly or tied to update milestones), and some are one-per-account. This page is re-tested regularly."
+      },
+      {
+        "question": "How often are new codes released?",
+        "answer": "New codes typically arrive with each major game update. Bookmark this page and check back after every patch."
+      },
+      {
+        "question": "Do codes expire?",
+        "answer": "Yes — most codes have an expiry date, shown next to each code. Expired codes move to the expired table below."
+      }
+    ],
+    "possiblyOutdated": "This guide was last checked on",
+    "outdatedNote": "— the game may have changed since. Some details could be out of date.",
+    "prevArticle": "Previous",
+    "nextArticle": "Next",
+    "minuteRead": "min read",
+    "wasThisHelpful": "Was this helpful?",
+    "feedbackThanks": "Thanks for the feedback!",
+    "sponsoredLabel": "Sponsored",
+    "relatedVideos": "Related videos",
+    "gallery": "Gallery",
+    "gameVersion": "Game version",
+    "allTags": "All Tags",
+    "tagsIndexDescription": "Browse all articles by topic.",
+    "articlesCount": "articles",
+    "recentTitle": "Recent Updates",
+    "recentDescription": "The latest articles and updates across the wiki, newest first.",
+    "sponsorTitle": "Support this wiki",
+    "sponsorText": "If these guides helped you, consider supporting the site.",
+    "sponsorButton": "Support us",
+    "notFoundSearchHint": "Try searching the wiki instead.",
+    "notFoundPopular": "Popular pages",
+    "galleryLabels": {
+      "close": "Close",
+      "prev": "Previous image",
+      "next": "Next image"
+    },
+    "quickAnswer": "Quick Answer",
+    "skipToContent": "Skip to content",
+    "tapToCopy": "Tap to copy",
+    "open": "Open",
+    "playVideo": "Play video",
+    "watchVideo": "Watch video",
+    "gameTrailer": "trailer",
+    "closeAd": "Close ad",
+    "adLabel": "Advertisement",
+    "codesFaqTitle": "Codes FAQ",
+    "faqTitle": "FAQ",
+    "toggleTheme": "Toggle theme",
+    "themeToggleTitle": "Light / Dark / AMOLED black",
+    "fallbackNotice": "English fallback",
+    "copyQuickAnswer": "Copy quick answer",
+    "feedbackYes": "Yes",
+    "feedbackNo": "No",
+    "breadcrumbAria": "Breadcrumb",
+    "paginationAria": "Article pagination"
+  },
+  "overview": {
+    "codes": {
+      "overviewTitle": "All Codes",
+      "overviewDescription": "Every working Volatiles code, cross-checked and dated. Updated after each game update."
+    },
+    "guides": {
+      "overviewTitle": "All Guides",
+      "overviewDescription": "Volatiles guides: first-session strategy and progression, dated and re-checked after updates."
+    }
+  },
+  "home": {
+    "meta": {
+      "title": "Volatiles Wiki — Codes & Guides",
+      "description": "Volatiles guides: working codes, beginner tips and progression guides, checked after every game update."
+    },
+    "updates": {
+      "title": "Recent updates"
+    },
+    "popular": {
+      "badge": "Popular",
+      "title": "Most read",
+      "quickLinks": [
+        {
+          "label": "Codes",
+          "href": "/codes"
+        },
+        {
+          "label": "Guides",
+          "href": "/guides"
+        }
+      ]
+    },
+    "closingCta": {
+      "title": "Start playing Volatiles",
+      "description": "Bookmark this wiki and check back after every game update.",
+      "primary": "Browse all",
+      "secondary": "Join the community"
+    },
+    "hero": {
+      "badge": "Fan-made wiki",
+      "title": "Volatiles Wiki",
+      "description": "Working codes and plain-language guides for Volatiles, re-checked after every update.",
+      "ctaPrimary": "Play now",
+      "ctaSecondary": "Browse guides",
+      "videoId": ""
+    },
+    "start": {
+      "badge": "Quick start",
+      "title": "Jump straight in",
+      "cards": [
+        {
+          "number": "1",
+          "title": "Codes",
+          "description": "Every working code",
+          "icon": "lucide:gift",
+          "href": "/codes/all-codes"
+        },
+        {
+          "number": "2",
+          "title": "Beginner guide",
+          "description": "What to do first",
+          "icon": "lucide:book-open",
+          "href": "/guides/beginner-guide"
+        }
+      ]
+    },
+    "explore": {
+      "title": "Explore",
+      "description": "The essentials",
+      "modules": [
+        {
+          "order": 1,
+          "name": "Active codes",
+          "description": "Placeholder — list the codes that work today",
+          "href": "/codes/all-codes",
+          "displayType": "badge-list",
+          "highlights": [
+            {
+              "label": "EXAMPLECODE",
+              "detail": "Placeholder reward",
+              "badge": "NEW"
+            }
+          ]
+        }
+      ]
+    },
+    "faq": {
+      "title": "FAQ",
+      "description": "Common questions",
+      "items": [
+        {
+          "question": "What are the working Volatiles codes?",
+          "answer": "Template placeholder. Answer with the real codes and the date you last checked them, then link to the codes page."
+        },
+        {
+          "question": "Is Volatiles free to play?",
+          "answer": "Template placeholder. Answer in one or two plain sentences."
+        }
+      ]
+    }
+  },
+  "footer": {
+    "playGame": "Play Volatiles",
+    "officialDiscord": "Official Discord",
+    "officialYoutube": "Official YouTube",
+    "officialTwitter": "Official Twitter",
+    "officialReddit": "Official Reddit",
+    "about": "About",
+    "faq": "FAQ",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "copyright": "Copyright",
+    "contact": "Contact",
+    "copyrightText": "© 2026 Volatiles Wiki. All rights reserved.",
+    "community": "Community",
+    "legal": "Legal"
+  }
+}

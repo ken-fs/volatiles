@@ -1,0 +1,128 @@
+/* ═══ game-themes / base.css —— 和主题无关的部分（所有主题共用）═════════
+   顺序：@import "tailwindcss"; → @import "./base.css"; → @import "./tokens/<主题>.css";
+   这里只用 token（var(--color-*)），不写死颜色，所以换主题不用动它。
+*/
+html { scroll-behavior: smooth; }
+html, body { overflow-x: clip; }
+p { text-wrap: pretty; }
+:focus-visible { outline: 2px solid var(--color-rust); outline-offset: 2px; }
+::selection { background: color-mix(in srgb, var(--color-rust) 40%, transparent); }
+code, kbd, samp { font-family: var(--font-code); font-size: .88em; }
+
+/* 数据表 */
+table.data { width: 100%; border-collapse: collapse; font-size: 0.9375rem; }
+table.data th {
+  text-align: left; font-weight: 600; font-size: 0.78rem; color: var(--color-ink-faint);
+  border-bottom: 1px solid var(--color-rule-hard); padding: 0.5rem 0.75rem 0.5rem 0;
+}
+table.data td { border-bottom: 1px solid var(--color-rule); padding: 0.5rem 0.75rem 0.5rem 0; }
+table.data tr:hover td { background: color-mix(in srgb, var(--color-rust) 6%, transparent); }
+
+a { color: inherit; }
+/* 悬停色默认 ember-lite；亮底主题（candy / comic）的 ember-lite 在底色上不到 4.5:1，在各自 token 里给 --color-link-hover（2026-10-11 实测） */
+a:hover { color: var(--color-link-hover, var(--color-ember-lite)); }
+
+/* 视频门面：点击前只是图片 + 播放键，点完才注入 iframe */
+.video-facade { padding: 0; cursor: pointer; }
+.video-facade img { transition: opacity 0.2s ease; }
+.video-facade:hover img { opacity: 0.86; }
+.video-facade:focus-visible { outline: 2px solid var(--color-rust); outline-offset: 2px; }
+.play-btn { color: var(--color-ink); }
+
+
+/* ══════════════════════════════════════════════════════════════
+   动效 —— 克制版（参考 aniimo.wiki 的力度：300ms、微位移、边框变色）
+
+   DESIGN-RULES 禁线性动画，所以缓动统一用自定义曲线，不用 ease/ease-in-out。
+   毛玻璃只用在「有内容从底下滚过」的地方 —— 铺在纯纸面上是看不见的。
+   ══════════════════════════════════════════════════════════════ */
+@theme {
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+/* 全局过渡（只针对颜色/边框/阴影，别用 all —— 会把布局属性也带上） */
+a, button, .card, [data-hover] {
+  transition:
+    color 0.25s var(--ease-out-quint),
+    background-color 0.25s var(--ease-out-quint),
+    border-color 0.25s var(--ease-out-quint),
+    box-shadow 0.3s var(--ease-out-quint),
+    transform 0.3s var(--ease-out-quint);
+}
+
+/* ── 毛玻璃（吸顶导航用）──────────────────────────────────────
+   bg 半透明 + 饱和度和模糊一起上，才是真·毛玻璃；
+   只写 blur 会显得灰、发闷。 */
+.glass {
+  background-color: color-mix(in srgb, var(--color-paper) 72%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  backdrop-filter: blur(14px) saturate(1.4);
+}
+/* 不支持 backdrop-filter 的老浏览器：退回不透明，别变成透底糊字 */
+@supports not (backdrop-filter: blur(1px)) {
+  .glass { background-color: var(--color-paper); }
+}
+
+/* ── 卡片里的图：hover 微放大（裁掉溢出）───────────────────── */
+.zoom-frame { overflow: hidden; }
+.zoom-frame img { transition: transform 0.45s var(--ease-out-quint); }
+.card:hover .zoom-frame img,
+.zoom-frame:hover img { transform: scale(1.04); }
+
+/* ── 箭头链接：hover 右移 ──────────────────────────────────── */
+.arrow-link { display: inline-block; }
+.arrow-link .arrow {
+  display: inline-block;
+  transition: transform 0.3s var(--ease-out-quint);
+}
+.arrow-link:hover .arrow { transform: translateX(0.28rem); }
+
+/* ── 导航：下划线从中间展开，不是直接切换颜色 ──────────────── */
+.nav-link { position: relative; }
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -3px;
+  height: 2px;
+  background: var(--color-rust);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.28s var(--ease-out-quint);
+}
+.nav-link:hover::after,
+.nav-link[aria-current="page"]::after { transform: scaleX(1); }
+
+/* ── 表格行：hover 时左侧出现一道锈红标线 ──────────────────── */
+table.data tbody tr { transition: background-color 0.2s var(--ease-out-quint); }
+table.data tbody tr td:first-child {
+  position: relative;
+}
+table.data tbody tr td:first-child::before {
+  content: "";
+  position: absolute; left: -0.6rem; top: 0; bottom: 0;
+  width: 2px; background: var(--color-rust);
+  transform: scaleY(0);
+  transition: transform 0.22s var(--ease-out-quint);
+}
+table.data tbody tr:hover td:first-child::before { transform: scaleY(1); }
+
+/* ── 锚点跳转时留出吸顶导航的高度 ──────────────────────────────
+   没有这个，跳转到 #timeline 之类的锚点时标题会被导航盖住。 */
+:target,
+section[id],
+[id][data-anchor] { scroll-margin-top: 5.5rem; }
+
+/* ── 无障碍：系统开了「减少动态效果」就全关 ────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .card:hover { transform: none; }
+  .card:hover .zoom-frame img,
+  .zoom-frame:hover img { transform: none; }
+}
+
+

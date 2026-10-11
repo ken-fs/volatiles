@@ -1,0 +1,197 @@
+/**
+ * Global stylesheet — import order matters (postcss-import inlines these).
+ *
+ *   1. Tailwind preflight (reset)
+ *   2. theme/base.css   — Ship/game-themes/base.css, theme-independent rules
+ *   3. theme/theme.css  — Ship/game-themes/tokens/<id>.css, the chosen theme
+ *   4. theme-bridge     — maps AnvilWiki's design variables onto the theme tokens
+ *   5. Tailwind components + utilities (utilities win over everything above)
+ *
+ * 👉 RE-THEME: never edit colors here or in components. Switch themes with
+ *    `node scripts/sync-theme.mjs --theme <id>` (copies the library files into
+ *    src/styles/theme/). Change a theme itself in Ship/game-themes first.
+ *
+ * The theme files use Tailwind v4 `@theme { … }` blocks; postcss.config.mjs
+ * turns them into `:root { … }` for this Tailwind v3 build.
+ */
+@import 'tailwindcss/base';
+@import './theme/base.css';
+@import './theme/theme.css';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* ── Theme bridge ─────────────────────────────────────────────────────────
+   AnvilWiki components were written against shadcn-style variables
+   (--background / --foreground / --card / --border / --brand …). Every one of
+   them now resolves to a game-themes token, so swapping theme.css restyles
+   header, cards, article body, tables, buttons and hero in one go.
+   Variables hold FULL colors (not HSL triplets): tailwind.config.mjs wraps
+   them in color-mix() so opacity modifiers like `bg-primary/10` still work. */
+@layer base {
+  :root {
+    --background: var(--color-paper);
+    --foreground: var(--color-ink);
+    --card: var(--color-card);
+    --card-foreground: var(--color-ink);
+    --muted: var(--color-paper-edge);
+    --muted-foreground: var(--color-ink-soft);
+    --border: var(--color-rule);
+    /* Accent as a BLOCK (buttons, bars, focus rings, icon chips). */
+    --brand: var(--color-rust);
+    --brand-light: var(--color-ember-lite);
+    /* Accent as TEXT (links, active nav, TOC): pulled toward ink so it clears
+       WCAG AA on every theme — e.g. comic's red is only 3.5:1 on its yellow
+       page and aqua's lime is meant as a block colour. Mixing toward ink only
+       ever raises contrast against paper, while keeping the hue recognisable. */
+    --brand-text: color-mix(in oklab, var(--color-rust) 62%, var(--color-ink));
+    /* Readable foreground on a --brand block (buttons, badges). */
+    --on-brand: var(--color-paper);
+  }
+
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
+  }
+
+  /* Prose links: ink text + accent underline — readable on every theme. */
+  .prose a:not([class]) {
+    text-decoration-line: underline;
+    text-decoration-color: var(--color-rust);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+  .prose a:not([class]):hover {
+    color: var(--brand-text);
+  }
+}
+
+@layer components {
+  /* Legacy AnvilWiki button names → theme buttons. Prefer `.btn-ember`
+     (primary, styled by the theme) in new markup. */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold;
+    border-radius: 10px;
+    background: var(--color-rust);
+    color: var(--on-brand);
+  }
+  .btn-primary:hover {
+    background: var(--color-ember-lite);
+    color: var(--on-brand);
+  }
+  .btn-fab {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold shadow-lg transition hover:scale-105;
+    background: var(--color-rust);
+    color: var(--on-brand);
+  }
+  .btn-fab:hover {
+    color: var(--on-brand);
+  }
+
+  /* Secondary button: outline in ink, accent wash on hover. */
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold;
+    border-radius: 10px;
+    border: 2px solid var(--color-rule-hard);
+    color: var(--color-ink);
+    background: color-mix(in srgb, var(--color-card) 60%, transparent);
+  }
+  .btn-outline:hover {
+    color: var(--color-ink);
+    border-color: var(--color-rust);
+    background: color-mix(in srgb, var(--color-rust) 12%, var(--color-card));
+  }
+
+  /* `.card` (clickable) and `.tile` (static panel) come from the theme —
+     do not redefine them here. Add spacing utilities only (p-4, gap-3 …);
+     border / radius / background / shadow utilities on a .card or .tile
+     would override the theme. */
+
+  /* Unified section vertical rhythm — use on all homepage sections. */
+  .section {
+    @apply mx-auto max-w-7xl px-4 py-12 md:py-16;
+  }
+
+  /* Status chips used by codes / timelines / tier grids — token colours only. */
+  .chip {
+    @apply inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-bold;
+  }
+  .chip-good {
+    background: color-mix(in srgb, var(--color-moss) 26%, transparent);
+    color: var(--color-ink);
+  }
+  .chip-bad {
+    background: color-mix(in srgb, var(--color-rust) 22%, transparent);
+    color: var(--color-ink);
+  }
+  .chip-warn {
+    background: color-mix(in srgb, var(--color-ochre) 30%, transparent);
+    color: var(--color-ink);
+  }
+
+  /* Mobile table fix: GFM tables inside prose (boss stats, loadouts, drop
+     rates) easily exceed narrow viewports. Making the table itself a
+     scrollable block lets readers swipe horizontally instead of seeing a
+     broken, squeezed layout. Applies to ALL prose tables site-wide. */
+  .prose table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  /* Prose tables read like the theme's `table.data`. */
+  .prose thead th {
+    color: var(--color-ink-faint);
+    font-size: 0.8rem;
+    border-bottom: 1px solid var(--color-rule-hard);
+  }
+  .prose tbody td {
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .prose tbody tr:hover td {
+    background: color-mix(in srgb, var(--color-rust) 6%, transparent);
+  }
+
+  /* Markdown body images (`![alt](/images/...)`) aren't processed by Astro
+     Image, so they arrive without intrinsic width/height attributes and
+     cause layout shift when they load. Reserving a 16:9 box pre-load keeps
+     CLS at 0 — pair with 16:9 source images (800×450 recommended); other
+     aspect ratios are letterboxed, never cropped. :not([class]) scopes this
+     to plain markdown <img>; component images (video thumbnails etc.) carry
+     utility classes and are excluded. */
+  .prose img:not([class]) {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+    border-radius: 0.5rem;
+    background-color: var(--muted);
+  }
+}
+
+/* Print styles — readers printing long guides get clean content only:
+   no header/footer/ads/TOC/floating buttons, full-width article. */
+@media print {
+  header,
+  footer,
+  .toc-nav,
+  #back-to-top,
+  #reading-progress,
+  #cookie-consent,
+  #sticky-banner,
+  #mobile-anchor-ad,
+  [data-helpful-root],
+  [data-share-root] {
+    display: none !important;
+  }
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+  .prose table {
+    display: table;
+    overflow: visible;
+  }
+}

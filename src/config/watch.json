@@ -1,0 +1,7 @@
+{
+  "$comment": "scripts/game-watch.mjs config (hourly cron, zero AI). placeId comes from src/config/site.ts social.official. codeSources = public code-list pages for this game (2+ independent ones); a code is only flagged when >=2 sources list it and the site does not. groupId = Roblox group of the developer (optional, its shout often announces codes). stopWords = extra ALL-CAPS page words that are not codes.",
+  "codesFile": "src/content/wiki/en/codes/all-codes.mdx",
+  "groupId": null,
+  "codeSources": [],
+  "stopWords": []
+}
