@@ -3,9 +3,9 @@
   "site": {
     "name": "Volatiles Wiki",
     "shortName": "Volatiles",
-    "description": "Volatiles guides: working codes, beginner tips and progression guides, checked after every game update.",
-    "tagline": "Codes, guides and tips, checked after every update.",
-    "legalNotice": "Fan-made resource. Not affiliated with the developer of Volatiles."
+    "description": "Volatiles guides and reference: how battlefield building works, run strategy, weapons and enemies for the 11 bit studios top-down action roguelike.",
+    "tagline": "Every tile is a weapon.",
+    "legalNotice": "Fan-made resource. Not affiliated with Team Instant Defeat or 11 bit studios."
   },
   "nav": {
     "home": "Home",
@@ -14,8 +14,8 @@
     "close": "Close",
     "search": "Search",
     "language": "Language",
-    "codes": "Codes",
-    "guides": "Guides"
+    "guides": "Guides",
+    "mechanics": "Mechanics"
   },
   "search": {
     "placeholder": "Search the wiki...",
@@ -120,102 +120,152 @@
     "paginationAria": "Article pagination"
   },
   "overview": {
-    "codes": {
-      "overviewTitle": "All Codes",
-      "overviewDescription": "Every working Volatiles code, cross-checked and dated. Updated after each game update."
-    },
     "guides": {
-      "overviewTitle": "All Guides",
-      "overviewDescription": "Volatiles guides: first-session strategy and progression, dated and re-checked after updates."
+      "overviewTitle": "Volatiles guides",
+      "overviewDescription": "What the game is, every confirmed fact, and the release-date tracker."
+    },
+    "mechanics": {
+      "overviewTitle": "Volatiles mechanics",
+      "overviewDescription": "The tile system, combat and progression — decoded from official material."
     }
   },
   "home": {
     "meta": {
-      "title": "Volatiles Wiki — Codes & Guides",
-      "description": "Volatiles guides: working codes, beginner tips and progression guides, checked after every game update."
+      "title": "Volatiles Wiki — release date, tile system and everything we know",
+      "description": "Volatiles guides and reference: how battlefield building works, run strategy, weapons and enemies for the 11 bit studios top-down action roguelike."
     },
     "updates": {
-      "title": "Recent updates"
+      "title": "Latest from the wiki"
     },
     "popular": {
       "badge": "Popular",
       "title": "Most read",
       "quickLinks": [
         {
-          "label": "Codes",
-          "href": "/codes"
-        },
-        {
           "label": "Guides",
           "href": "/guides"
+        },
+        {
+          "label": "Mechanics",
+          "href": "/mechanics"
         }
       ]
     },
     "closingCta": {
-      "title": "Start playing Volatiles",
-      "description": "Bookmark this wiki and check back after every game update.",
+      "title": "Follow it from day one",
+      "description": "Volatiles is early in its marketing cycle — this wiki grows with every announcement. Bookmark it and watch the release date page.",
       "primary": "Browse all",
-      "secondary": "Join the community"
+      "secondary": "Release date tracker"
     },
     "hero": {
-      "badge": "Fan-made wiki",
+      "badge": "Announced October 8, 2026",
       "title": "Volatiles Wiki",
-      "description": "Working codes and plain-language guides for Volatiles, re-checked after every update.",
-      "ctaPrimary": "Play now",
-      "ctaSecondary": "Browse guides",
-      "videoId": ""
+      "description": "The 11 bit action roguelike where you build the battlefield. Everything confirmed so far, decoded — plus what nobody has published yet.",
+      "ctaPrimary": "Wishlist on Steam",
+      "ctaSecondary": "Mechanics, decoded",
+      "videoId": "e0k6HhWszHQ"
     },
     "start": {
-      "badge": "Quick start",
-      "title": "Jump straight in",
+      "badge": "New here?",
+      "title": "Start in three pages",
       "cards": [
         {
           "number": "1",
-          "title": "Codes",
-          "description": "Every working code",
-          "icon": "lucide:gift",
-          "href": "/codes/all-codes"
+          "title": "What is Volatiles?",
+          "description": "The game, the hook, the pedigree",
+          "icon": "lucide:book-open",
+          "href": "/guides/what-is-volatiles"
         },
         {
           "number": "2",
-          "title": "Beginner guide",
-          "description": "What to do first",
-          "icon": "lucide:book-open",
-          "href": "/guides/beginner-guide"
+          "title": "Everything we know",
+          "description": "Every confirmed fact, sourced",
+          "icon": "lucide:list",
+          "href": "/guides/everything-we-know"
+        },
+        {
+          "number": "3",
+          "title": "Release date tracker",
+          "description": "How to know the moment it drops",
+          "icon": "lucide:calendar",
+          "href": "/guides/release-date"
         }
       ]
     },
     "explore": {
-      "title": "Explore",
-      "description": "The essentials",
+      "title": "Explore the wiki",
+      "description": "Start with the guides, then go deep on the mechanics.",
       "modules": [
         {
           "order": 1,
-          "name": "Active codes",
-          "description": "Placeholder — list the codes that work today",
-          "href": "/codes/all-codes",
-          "displayType": "badge-list",
+          "name": "Start here",
+          "description": "The essential pages, in order",
+          "href": "/guides",
+          "displayType": "steps",
           "highlights": [
             {
-              "label": "EXAMPLECODE",
-              "detail": "Placeholder reward",
-              "badge": "NEW"
+              "label": "Overview",
+              "detail": "What Volatiles is and why it looks different",
+              "badge": "2 min"
+            },
+            {
+              "label": "The facts",
+              "detail": "Everything confirmed, nothing invented",
+              "badge": "5 min"
+            },
+            {
+              "label": "Release date",
+              "detail": "No date yet — here is how to know first",
+              "badge": "1 min"
+            }
+          ]
+        },
+        {
+          "order": 2,
+          "name": "Mechanics, decoded",
+          "description": "Read from the official screenshots and description",
+          "href": "/mechanics",
+          "displayType": "labeled-cards",
+          "highlights": [
+            {
+              "label": "Battlefield building",
+              "detail": "Pick 1 of 3 tiles, each with contents and risk modifiers"
+            },
+            {
+              "label": "Combat and waves",
+              "detail": "Wave countdowns, weapon levels, the capsule objective"
+            },
+            {
+              "label": "Perks and progression",
+              "detail": "Perks, artifacts, and what dying in the tank gives back"
             }
           ]
         }
       ]
     },
     "faq": {
-      "title": "FAQ",
-      "description": "Common questions",
+      "title": "Volatiles FAQ",
+      "description": "The questions the announcement leaves open, answered with sources.",
       "items": [
         {
-          "question": "What are the working Volatiles codes?",
-          "answer": "Template placeholder. Answer with the real codes and the date you last checked them, then link to the codes page."
+          "question": "When is the Volatiles release date?",
+          "answer": "Not announced. The October 8, 2026 reveal shipped with a trailer and a Steam wishlist link only — no window, no year. Our release date tracker documents how to know the moment that changes."
         },
         {
-          "question": "Is Volatiles free to play?",
-          "answer": "Template placeholder. Answer in one or two plain sentences."
+          "question": "Is Volatiles co-op or multiplayer?",
+          "answer": "No. Steam lists it as single-player only, with no announced multiplayer or co-op mode. The lab-nightmare narrative and the tile-choice economy are built for one player."
+        },
+        {
+          "question": "Who is making Volatiles?",
+          "answer": "Team Instant Defeat, a newly established studio, with 11 bit studios as publisher. 11 bit is known for Frostpunk and This War of Mine and for publishing roguelikes like Children of Morta and Moonlighter."
+        },
+        {
+          "question": "What platforms will Volatiles be on?",
+          "answer": "PC via Steam, with full controller support including DualSense and DualShock. No console versions have been announced."
+        },
+        {
+          "question": "What makes Volatiles different from other roguelikes?",
+          "answer": "You build the battlefield itself: each round you select one of three tiles, and tiles carry defensive structures, loot, and modifiers — including ones that make hordes spawn 100% more often on purpose."
         }
       ]
     }

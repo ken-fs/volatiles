@@ -64,10 +64,10 @@ export interface SiteConfig {
 export const site: SiteConfig = {
   name: 'Volatiles Wiki',
   shortName: 'Volatiles',
-  description: 'Volatiles guides: working codes, beginner tips and progression guides, checked after every game update.',
+  description: "Volatiles guides and reference: how battlefield building works, run strategy, weapons and enemies for the 11 bit studios top-down action roguelike.",
   domain: 'volatiles.wiki',
-  tagline: 'Codes, guides and tips, checked after every update.',
-  legalNotice: 'Fan-made resource. Not affiliated with the developer of Volatiles.',
+  tagline: 'Every tile is a weapon.',
+  legalNotice: 'Fan-made resource. Not affiliated with Team Instant Defeat or 11 bit studios.',
   // Set a real address if you run no social channels — the contact page
   // renders it as a mailto link.
   contactEmail: '',
@@ -81,13 +81,13 @@ export const site: SiteConfig = {
   game: {
     name: 'Volatiles',
     platform: 'Steam',
-    developer: 'Example Studio',
-    genre: 'Simulator',
+    developer: 'Team Instant Defeat',
+    genre: 'Action roguelike',
   },
   // og:image dims of the SHIPPED hero.webp — if you replace public/images/hero.webp,
   // update these to match (wrong dims mis-crop share cards).
-  ogImageWidth: 1200,
-  ogImageHeight: 630,
+  ogImageWidth: 1920,
+  ogImageHeight: 1080,
 };
 
 /** Absolute site URL (no trailing slash). Falls back to the Astro `site` config. */

@@ -1,1 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#38ff7a"/><text x="32" y="43" font-family="system-ui, -apple-system, 'Hiragino Sans', 'Noto Sans CJK SC', sans-serif" font-size="34" font-weight="700" fill="#111827" text-anchor="middle">V</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="113" fill="#0d1420"/>
+  <rect x="31" y="31" width="450" height="450" rx="90" fill="none" stroke="#22d3ee" stroke-width="9"/>
+  <text x="256" y="256" fill="#22d3ee" font-family="Arial, Helvetica, sans-serif" font-size="256" font-weight="bold" text-anchor="middle" dominant-baseline="central">V</text>
+</svg>
