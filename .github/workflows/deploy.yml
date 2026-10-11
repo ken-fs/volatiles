@@ -31,6 +31,7 @@ jobs:
         env:
           SITE_URL: https://volatiles.wiki
           INDEXNOW_KEY: ${{ vars.INDEXNOW_KEY }}
+          PUBLIC_GA_ID: ${{ vars.PUBLIC_GA_ID }}
 
       - name: Deploy
         run: pnpm exec wrangler deploy
