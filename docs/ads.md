@@ -101,6 +101,8 @@ AdSense 审核通过、广告上线,后台开始积累余额——但从"后台�
 
 Adsterra 是 AdSense 之外最常用的备选:**零流量门槛、审核分钟级、USDT $100 起付**。三种典型用法:
 
+> ⚠️ **Adsterra 不需要 ads.txt 记录**（用户 2026-10-11 确认：后台根本没有这个东西）——不要向用户要它，也不要等它再把广告位打开。`public/ads.txt` 只服务 AdSense，Adsterra 位只需 env 门控 + `public/ads/*.html`。
+
 - **AdSense 被拒 / 还在审核等待期**:先挂 Adsterra 回血,过了再切换或共存
 - **站还太小,AdSense 收入可怜**:Adsterra 不挑流量
 - **完全不想依赖 Google**:Adsterra 一条龙(广告 + 第五节同层的备胎平台)
