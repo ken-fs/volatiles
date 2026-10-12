@@ -2,7 +2,7 @@
   "template": "game-anvil",
   "templateDir": "game-template-anvil",
   "templateRemote": "https://github.com/ken-fs/game-template-anvil.git",
-  "templateCommit": "d3e5bff5016c42b3a8eca7beb1e715c591a0a64e",
+  "templateCommit": "456250af0cec8f05a3658f97b869c1d6d9dda25f",
   "createdAt": "2026-10-11T06:07:56.849056Z",
   "domain": "volatiles.wiki",
   "theme": "terminal",
