@@ -108,20 +108,34 @@ async function get(url) {
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       return await r.text();
     } catch (e) {
-      if (i >= (limited ? 3 : 2)) throw new Error(`${url.slice(0, 60)}: ${e.message}`);
+      if (i >= (limited ? 3 : 2)) {
+        // 大站常见「封机房 IP」（403/429/503）——Jina 读取代理兜底一次（同 aistatement 的重抓链）
+        if (/HTTP (403|429|503)/.test(e.message)) {
+          try {
+            const jr = await fetch(`https://r.jina.ai/${url}`, { signal: AbortSignal.timeout(45000) });
+            if (jr.ok) {
+              const body = await jr.text();
+              // Jina 对目标页 404/5xx 也返回 200，正文里带这句——别把它当抓取成功
+              if (!/Target URL returned error/.test(body)) return body;
+            }
+          } catch { /* 兜底也失败就按原错误抛出 */ }
+        }
+        throw new Error(`${url.slice(0, 60)}: ${e.message}`);
+      }
       await new Promise((res) => setTimeout(res, limited ? 20000 * i : 2500 * i));
     }
   }
 }
 
-/** 从码源 HTML 里抽候选码：全大写 4–20 位、至少含一个字母，剔除页面词汇。 */
+/** 从码源 HTML 里抽候选码：全大写 4–32 位、至少含一个字母，剔除页面词汇。
+ *  上限 32：THANKSFOR20KMEMBERDISCORD 这类里程碑码有 25 字符，上限太小会静默漏掉并误报 GONE。 */
 function extractCodes(html) {
   const text = html
     .replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&[a-z#0-9]+;/gi, ' ');
   const out = new Set();
-  for (const m of text.matchAll(/\b[A-Z0-9]{4,20}\b/g)) {
+  for (const m of text.matchAll(/\b[A-Z0-9]{4,32}\b/g)) {
     const tok = m[0];
     if (!/[A-Z]/.test(tok)) continue; // 纯数字不是码
     if (STOP.has(tok)) continue;
@@ -136,6 +150,8 @@ const mdx = existsSync(CODES_FILE) ? readFileSync(CODES_FILE, 'utf8') : '';
 const known = new Set(
   [...mdx.matchAll(/^\s*-\s*code:\s*['"]?([A-Za-z0-9_]+)['"]?\s*$/gm)].map((m) => m[1]),
 );
+// 页面正文里用反引号记过的码（过期清单、命名例子）也算已知——否则它们会被反复报成新候选
+for (const m of mdx.matchAll(/`([A-Z][A-Z0-9_]{3,31})`/g)) known.add(m[1]);
 const pageLastModified = mdx.match(/^lastModified:\s*(\d{4}-\d{2}-\d{2})/m)?.[1] ?? null;
 
 // ─── 1. Roblox 元数据 ─────────────────────────────────────────────────────────
@@ -170,10 +186,12 @@ try {
 const perSource = {};
 const sourceErrors = [];
 for (const s of CODE_SOURCES) {
+  // 兼容两种写法：{"id","url"} 对象，或纯 URL 字符串（new-site 生成的模板默认写法）
+  const src = typeof s === 'string' ? { id: new URL(s).hostname, url: s } : s;
   try {
-    perSource[s.id] = extractCodes(await get(s.url));
+    perSource[src.id] = extractCodes(await get(src.url));
   } catch (e) {
-    sourceErrors.push(`${s.id}: ${e.message}`);
+    sourceErrors.push(`${src.id}: ${e.message}`);
   }
 }
 
@@ -202,6 +220,18 @@ const stalePage = Boolean(
   pageLastModified && prev && pageLastModified < gameDay && prev.staleNotifiedFor !== gameDay,
 );
 
+// 监控自身健康：源抓取成功数写进 state，巡检/降级告警都靠它
+const sourceHealth = {
+  ok: CODE_SOURCES.length - sourceErrors.length,
+  total: CODE_SOURCES.length,
+  errors: sourceErrors,
+};
+// 同一个「哪些源坏了」签名只通知一次；恢复后清零，再坏再通知
+const degradedSig =
+  sourceHealth.errors.length >= 2
+    ? sourceHealth.errors.map((e) => e.split(':')[0]).sort().join(',')
+    : '';
+
 writeFileSync(
   STATE,
   JSON.stringify(
@@ -209,6 +239,8 @@ writeFileSync(
       game: now,
       knownCodes: [...known].sort(),
       newCandidates,
+      sourceHealth,
+      degradedNotifiedFor: degradedSig || null,
       staleNotifiedFor: stalePage ? gameDay : prev?.staleNotifiedFor ?? null,
       checkedAt: new Date().toISOString(),
     },
@@ -243,6 +275,15 @@ if (stalePage) {
     '🔔 codes 页落后于游戏更新',
     `页面 ${pageLastModified}，游戏已更新到 ${gameDay} → 同步新码/日期（多源确认后改 codes 页）`,
     'Glass',
+  );
+}
+
+if (degradedSig && prev.degradedNotifiedFor !== degradedSig) {
+  log(`SOURCE_DEGRADED ${sourceHealth.ok}/${sourceHealth.total} ok | ${sourceErrors.join(' | ')}`);
+  notify(
+    `⚠️ ${GAME} 码监控源降级`,
+    `${sourceHealth.ok}/${sourceHealth.total} 个码源可抓——监控可能漏新码，尽快换源：${sourceErrors.slice(0, 2).join('；')}`,
+    'Bong',
   );
 }
 
