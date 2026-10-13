@@ -20,7 +20,7 @@
  */
 import { readFileSync, writeFileSync, appendFileSync, existsSync, mkdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
-import { dirname, join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -257,25 +257,22 @@ if (!prev) {
 }
 
 const changed = ['name', 'description', 'updated', 'shout'].filter((k) => prev.game?.[k] !== now[k]);
+// 2026-10-13：变化不再推「请手动更新」，直接交给自动更新引擎（Ship/scripts/autopilot）：它多源确认后改码表、
+// 构建、上线，再推飞书告诉用户改了什么。引擎不在（模板单独拿出去用）才退回原来的通知。
+const autoReasons = [];
+const AUTOPILOT = join(SHIP, 'scripts', 'autopilot', 'trigger.mjs');
+const handoff = (reason) => autoReasons.push(reason);
 if (changed.length) {
   const isUpdate = changed.includes('updated') || changed.includes('description');
   for (const k of changed) {
     log(`CHANGED ${k}: ${JSON.stringify(String(prev.game?.[k] ?? '').slice(0, 120))} → ${JSON.stringify(String(now[k]).slice(0, 120))}`);
   }
-  notify(
-    isUpdate ? `🆕 ${GAME} 更新` : `${GAME} 数据源有变化`,
-    `${changed.join('/')} 变化 → 查新码并同步 codes 页（正文 ${pageLastModified ?? '?'}）`,
-    isUpdate ? 'Glass' : 'Blow',
-  );
+  handoff(`${GAME} ${isUpdate ? '游戏更新' : '数据源变化'}（${changed.join('/')}${changed.includes('shout') ? `，群组公告：${now.shout.slice(0, 150)}` : ''}）`);
 }
 
 if (stalePage) {
   log(`STALE_CODES page ${pageLastModified} < game ${gameDay}`);
-  notify(
-    '🔔 codes 页落后于游戏更新',
-    `页面 ${pageLastModified}，游戏已更新到 ${gameDay} → 同步新码/日期（多源确认后改 codes 页）`,
-    'Glass',
-  );
+  handoff(`codes 页 ${pageLastModified} 落后于游戏更新 ${gameDay}`);
 }
 
 if (degradedSig && prev.degradedNotifiedFor !== degradedSig) {
@@ -289,13 +286,21 @@ if (degradedSig && prev.degradedNotifiedFor !== degradedSig) {
 
 if (newCandidates.length) {
   log(`🚨 NEW_CODES ${newCandidates.join(' ')}`);
-  notify(
-    `🚨 ${GAME} 新码待确认`,
-    `${newCandidates.slice(0, 8).join(' ')} → 双源确认后补进 codes 页（含标题日期）`,
-    'Sosumi',
-  );
+  handoff(`码源出现本站没有的码 ${newCandidates.slice(0, 8).join(' ')}`);
 }
 
+if (autoReasons.length) {
+  if (gone.length) autoReasons.push(`这些码各源都不再列出，核实是否过期：${gone.join(' ')}`);
+  let handed = false;
+  if (existsSync(AUTOPILOT)) {
+    try {
+      const { trigger } = await import(AUTOPILOT);
+      handed = autoReasons.every((r) => trigger(basename(REPO), r));
+    } catch {}
+  }
+  if (handed) log(`AUTOPILOT ${autoReasons.join(' | ')}`);
+  else notify(`🆕 ${GAME} 有变化`, `${autoReasons.join('；')} → 多源确认后更新 codes 页`, 'Sosumi');
+}
 if (gone.length) log(`GONE ${gone.join(' ')}（所有成功抓取的源都不再列出，人工确认后标过期）`);
 if (sourceErrors.length) log(`SOURCE_ERRORS ${sourceErrors.join(' | ')}`);
 if (!changed.length && !newCandidates.length && !stalePage) log('no change');
