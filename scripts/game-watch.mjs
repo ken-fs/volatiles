@@ -135,7 +135,8 @@ function extractCodes(html) {
     .replace(/<[^>]+>/g, ' ')
     .replace(/&[a-z#0-9]+;/gi, ' ');
   const out = new Set();
-  for (const m of text.matchAll(/\b[A-Z0-9]{4,32}\b/g)) {
+  // 允许点号：UPDATE3.5 这类码整串匹配，否则点会断词导致静默漏码
+  for (const m of text.matchAll(/\b[A-Z][A-Z0-9.]{3,31}\b/g)) {
     const tok = m[0];
     if (!/[A-Z]/.test(tok)) continue; // 纯数字不是码
     if (STOP.has(tok)) continue;
