@@ -79,6 +79,13 @@ describe('spliceImageIntoFrontmatter', () => {
     expect(out!.replace(/\r\n/g, '').includes('\n')).toBe(false);
   });
 
+  test('leaves $-patterns in the frontmatter alone ("$1,500" is not a capture group)', () => {
+    const src = "---\ntitle: T\ncategory: guides\nsummary: 'Needs $1,500 and $& cash.'\n---\n\nBody";
+    expect(spliceImageIntoFrontmatter(src, 'c.png')).toBe(
+      "---\ntitle: T\ncategory: guides\nimage: 'c.png'\nsummary: 'Needs $1,500 and $& cash.'\n---\n\nBody",
+    );
+  });
+
   test('falls back to description, then appends when neither exists', () => {
     expect(spliceImageIntoFrontmatter('---\ntitle: T\ndescription: D\n---\n', 'c.png')).toBe(
       "---\ntitle: T\ndescription: D\nimage: 'c.png'\n---\n",

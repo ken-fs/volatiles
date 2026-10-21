@@ -111,7 +111,9 @@ export function spliceImageIntoFrontmatter(src: string, imageRelPath: string): s
     : /^description:[^\r\n]*$/m.test(block)
       ? block.replace(/^(description:[^\r\n]*)/m, `$1${eol}${line}`)
       : `${block}${eol}${line}`;
-  return src.replace(fmRe, `---${eol}${newBlock}${eol}---`);
+  // Function replacer: a string replacement would expand `$1`, `$&` … inside the
+  // frontmatter itself (a summary mentioning "$1,500" got the whole block pasted in).
+  return src.replace(fmRe, () => `---${eol}${newBlock}${eol}---`);
 }
 
 const CJK_RE = /[\u{3040}-\u{30ff}\u{31f0}-\u{31ff}\u{3400}-\u{4dbf}\u{4e00}-\u{9fff}\u{f900}-\u{faff}]/u;
