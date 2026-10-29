@@ -11,6 +11,7 @@ import { CONTENT_TYPES } from './src/config/navigation';
 import { site as siteCfg } from './src/config/site';
 import { fallbackDetailPaths } from './src/lib/fallback-paths';
 import { computeTagRedirects, tagRedirectLines, type TagSourceEntry } from './src/lib/tag-redirects';
+import { computeHubRedirects, hubRedirectLines } from './src/lib/hub-redirects';
 import { parse as parseYaml } from 'yaml';
 
 /**
@@ -228,9 +229,10 @@ function alternatesFor(pagePath: string): Array<{ lang: string; url: string }> |
 
 /**
  * Published entries' tags, read from MDX frontmatter at config time (same
- * fs-scan constraint as buildLastmodMap). Feeds the tag → article 301s —
- * the same computeTagRedirects() the tag routes use to skip those pages, so
- * the built pages and the redirect table can't disagree.
+ * fs-scan constraint as buildLastmodMap). Feeds the tag → article and
+ * single-article hub → article 301s — the same computeTagRedirects() /
+ * computeHubRedirects() the routes use to skip those pages, so the built
+ * pages and the redirect table can't disagree.
  */
 function collectTagSources(): TagSourceEntry[] {
   const out: TagSourceEntry[] = [];
@@ -257,17 +259,28 @@ function collectTagSources(): TagSourceEntry[] {
   return out;
 }
 
-/** Appends the tag → article 301s to dist/_redirects (keeps any public/_redirects). */
+/**
+ * Appends the tag → article and sole-article hub → article 301s to
+ * dist/_redirects (keeps any public/_redirects).
+ */
 const tagRedirectsIntegration = {
   name: 'tag-redirects',
   hooks: {
     'astro:build:done': ({ dir }: { dir: URL }) => {
-      const lines = tagRedirectLines(computeTagRedirects(collectTagSources()), defaultLocale);
-      if (!lines.length) return;
+      const sources = collectTagSources();
+      const blocks = [
+        ['tag pages folded into their article (src/lib/tag-redirects.ts)', tagRedirectLines(computeTagRedirects(sources), defaultLocale)],
+        ['single-article category hubs folded into it (src/lib/hub-redirects.ts)', hubRedirectLines(computeHubRedirects(sources, CONTENT_TYPES), defaultLocale)],
+      ] as const;
+      const body = blocks
+        .filter(([, lines]) => lines.length)
+        .map(([title, lines]) => `# ${title}\n${lines.join('\n')}\n`)
+        .join('');
+      if (!body) return;
       const file = new URL('_redirects', dir);
       const kept = fs.existsSync(file) ? fs.readFileSync(file, 'utf8').trimEnd() : '';
       const prev = kept ? `${kept}\n` : '';
-      fs.writeFileSync(file, `${prev}# tag pages folded into their article (src/lib/tag-redirects.ts)\n${lines.join('\n')}\n`);
+      fs.writeFileSync(file, `${prev}${body}`);
     },
   },
 };

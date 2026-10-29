@@ -1,6 +1,6 @@
 # 本仓库是 Ship 的游戏站模板 game-template-anvil（或由它生成的站）
 
-所有 agent（Claude Code / Codex / pi …）通用规则以 `~/Desktop/david/Ship/AGENTS.md` 开头的「🧭 建站铁律」为准，开工前先读；路径 A 的 SOP（数据源纪律、内容写作、官方素材、部署坑）在同一文件的「Roblox 攻略站建站 SOP」。这里只写本仓库特有的东西。
+所有 agent（Claude Code / Codex / pi …）通用规则以 `~/Desktop/david/Ship/AGENTS.md` 开头的「🧭 建站铁律」为准，开工前先读；路径 A 的 SOP（数据源纪律、内容写作、官方素材、部署坑）在 `~/Desktop/david/Ship/docs/ROBLOX-SOP.md`。这里只写本仓库特有的东西。
 
 ## 模板 vs 生成的站
 
@@ -34,6 +34,7 @@ Theme layer   (src/styles/theme/*)                                — 只经 syn
 - 分类 key 三处一致：`src/config/navigation.ts` 的 `NAVIGATION_CONFIG[].key` = `en.json` 的 `nav.<key>` + `overview.<key>` = `src/content/wiki/<locale>/<key>/` 目录名；新分类先有文章再进 navigation
 - 文章正文从 H2 起（H1 由 frontmatter `title` 渲染）
 - 广告 / 评论 / GA 都走 env 变量，空值 = 不渲染；GA 用 `PUBLIC_GA_ID`，**同意门控**（`BaseLayout` 定义 `window.__awLoadTrackers`，`CookieConsent` 点接受后才注入；`gtag()` 推的是 `arguments`，别改成数组——2026-10-01 六个站 GA 零数据就是这个）
+- **首页不抢 codes 词**：`en.json` 的 `home.meta` / `hero` / `site.tagline`、`site.ts` 的 `description` / `tagline` 不写 codes；首页 Codes 模块只显示「N 个可用码 · 核对日期」并链到 codes 页，不列码；`/faq` 里的 codes 问题一句话指向 codes 页、不列码。codes 页 title 写「<游戏> Codes (Month Year)」。2026-10 dropafruit / animemysterious 首页吃了 98% 的 codes 曝光、排 8–10、几乎 0 点击；排得上的都是独立 codes 页（Fandom `/wiki/Codes`、IGN、wiki.vanguards.gg、holefishing 第 2）。巡检 `seo-structure.mjs` 会查
 - `src/config/site.ts` 的 `social.official` **必填**，保持单引号一行：`official: 'https://www.roblox.com/games/<placeId>/…'` 或 `store.steampowered.com/app/<appid>/`——Ship 每日巡检靠它比对「游戏更新了、站没跟」
 
 ## schema 限制（构建时 Zod 硬校验，`src/content.config.ts`）

@@ -17,8 +17,10 @@
 
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { defaultLocale, type Locale } from './routing';
-import { detailPath, slugifyTag, tagPath } from '~/lib/url';
+import { detailPath, listPath, slugifyTag, tagPath } from '~/lib/url';
 import { computeTagRedirects, type TagTarget } from '~/lib/tag-redirects';
+import { computeHubRedirects } from '~/lib/hub-redirects';
+import { CONTENT_TYPES } from '~/config/navigation';
 import { selectRelatedEntries, newestFirst } from '~/lib/content-utils';
 
 export type WikiEntry = CollectionEntry<'wiki'>;
@@ -268,6 +270,43 @@ export async function tagHref(tag: string, locale: Locale): Promise<string> {
   const slug = slugifyTag(tag);
   const t = (await getTagRedirects(locale)).get(slug);
   return t ? detailPath(t.category, t.slug, locale) : tagPath(slug, locale);
+}
+
+/**
+ * Category → slug of its only article, for categories whose hub folds into
+ * that article (see lib/hub-redirects.ts). Those hubs get no page — the route
+ * skips them and astro.config writes the 301 — so every link to a category
+ * must go through categoryHref().
+ */
+let hubRedirectsCache: Promise<Map<string, Map<string, string>>> | undefined;
+export async function getHubRedirects(locale: Locale): Promise<Map<string, string>> {
+  hubRedirectsCache ??= getCollection('wiki').then((all) =>
+    computeHubRedirects(
+      all.filter(isPublished).flatMap((e) => {
+        const parsed = parseEntryId(e.id);
+        return parsed ? [parsed] : [];
+      }),
+      CONTENT_TYPES,
+    ),
+  );
+  return (await hubRedirectsCache).get(locale) ?? new Map();
+}
+
+/** Link for a category: its only article when the hub is folded, else the hub. */
+export async function categoryHref(category: string, locale: Locale): Promise<string> {
+  const slug = (await getHubRedirects(locale)).get(category);
+  return slug ? detailPath(category, slug, locale) : listPath(category, locale);
+}
+
+/**
+ * Rewrites a hand-written href (locale JSON cards: "/codes", "/codes/") that
+ * points at a folded hub to the article; anything else is returned as-is.
+ */
+export async function resolveHubHref(href: string, locale: Locale): Promise<string> {
+  const category = href.match(/^\/([a-z0-9-]+)\/?$/)?.[1];
+  if (!category) return href;
+  const slug = (await getHubRedirects(locale)).get(category);
+  return slug ? `/${category}/${slug}/` : href;
 }
 
 // Staleness constants + predicate live in lib/content-utils.ts (pure,

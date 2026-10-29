@@ -20,6 +20,9 @@ export {
   localesForTag,
   getTagRedirects,
   tagHref,
+  getHubRedirects,
+  categoryHref,
+  resolveHubHref,
   type WikiEntry,
   type ResolvedEntry,
 } from '~/i18n/content';

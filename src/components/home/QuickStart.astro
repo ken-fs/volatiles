@@ -14,6 +14,7 @@ import { Icon } from 'astro-icon/components';
 import { type Locale } from '~/i18n/routing';
 import { localizePath } from '~/lib/url';
 import { getUi } from '~/i18n/ui';
+import { resolveHubHref } from '~/i18n/content';
 
 interface StartCard {
   number: string;
@@ -32,15 +33,17 @@ interface Props {
 const { locale, badge = 'Start Here', title = 'Quick Start', cards = [] } = Astro.props;
 const sharedStrings = getUi(locale).shared;
 const open = sharedStrings.open ?? 'Open';
+// A hand-written "/codes" href resolves to the article when that hub is folded (lib/hub-redirects.ts).
+const hrefs = await Promise.all(cards.map((c) => resolveHubHref(c.href, locale)));
 ---
 {cards.length > 0 && (
   <section class="section border-t border-border">
     <p class="text-sm font-semibold text-foreground">{badge}</p>
     <h2 class="mt-1 text-2xl font-bold tracking-tight md:text-3xl">{title}</h2>
     <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 md:mt-8">
-      {cards.map((card: StartCard) => (
+      {cards.map((card: StartCard, i: number) => (
         <a
-          href={localizePath(card.href, locale)}
+          href={localizePath(hrefs[i]!, locale)}
           class="card group flex flex-col p-5"
         >
           <div class="flex items-center justify-between">

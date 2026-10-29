@@ -29,7 +29,7 @@ import { site } from '~/config/site';
 import { NAVIGATION_CONFIG } from '~/config/navigation';
 import { type Locale } from '~/i18n/routing';
 import { getUi, type HomeUi } from '~/i18n/ui';
-import { getEntriesByCategory, getRecentEntries, parseEntryId } from '~/lib/content';
+import { categoryHref, getEntriesByCategory, getRecentEntries, parseEntryId, resolveHubHref } from '~/lib/content';
 import { localizePath, listPath, detailPath } from '~/lib/url';
 
 interface Props {
@@ -75,6 +75,8 @@ const pageIndex = (
     })),
   )
 ).filter((s) => s.entries.length >= 2);
+// Second nav category (guides). Single-article categories link the article — lib/hub-redirects.ts.
+const guidesHref = await categoryHref(NAVIGATION_CONFIG[1]?.key ?? 'guides', locale);
 
 // Per-field fallbacks: a locale JSON whose meta object exists but lacks
 // title/description must not pass undefined into BaseLayout (title.includes
@@ -110,9 +112,10 @@ const heroTitleHead = titleWords.join(' ') + (heroTitleTail ? ' ' : '');
 // QuickLink may be a string or { label, href } — normalize for the sidebar list.
 type QuickLink = string | { label: string; href: string };
 const trendingLinks: QuickLink[] = Array.isArray(popular.quickLinks) ? popular.quickLinks : [];
-function trendingHref(link: QuickLink): string | null {
-  return typeof link === 'string' ? null : localizePath(link.href, locale);
-}
+// A hand-written "/codes" href resolves to the article when that hub is folded (lib/hub-redirects.ts).
+const trendingHrefs = await Promise.all(
+  trendingLinks.map(async (link) => (typeof link === 'string' ? null : localizePath(await resolveHubHref(link.href, locale), locale))),
+);
 function trendingLabel(link: QuickLink): string {
   return typeof link === 'string' ? link : link.label;
 }
@@ -158,7 +161,7 @@ function trendingLabel(link: QuickLink): string {
           }
           {
             hero.ctaSecondary && (
-              <a href={listPath(NAVIGATION_CONFIG[1]?.key ?? 'guides', locale)} class="btn-outline">
+              <a href={guidesHref} class="btn-outline">
                 {hero.ctaSecondary}
               </a>
             )
@@ -239,7 +242,7 @@ function trendingLabel(link: QuickLink): string {
       <div class="lg:col-span-2">
         <div class="flex items-baseline justify-between">
           <h2 class="text-2xl">{updates.title}</h2>
-          <a href={listPath(NAVIGATION_CONFIG[1]?.key ?? 'guides', locale)} class="arrow-link text-sm font-semibold text-nav"
+          <a href={guidesHref} class="arrow-link text-sm font-semibold text-nav"
             >{shared.browseAll} <span class="arrow">→</span></a
           >
         </div>
@@ -274,8 +277,8 @@ function trendingLabel(link: QuickLink): string {
           <p class="tag">{popular.badge}</p>
           <h2 class="mt-3 text-2xl">{popular.title}</h2>
           <ul class="mt-4 space-y-2">
-            {trendingLinks.map((link: QuickLink) => {
-              const href = trendingHref(link);
+            {trendingLinks.map((link: QuickLink, i: number) => {
+              const href = trendingHrefs[i];
               const label = trendingLabel(link);
               return (
                 <li>

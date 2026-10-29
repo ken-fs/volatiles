@@ -11,6 +11,7 @@ import { site } from '~/config/site';
 import { type Locale, defaultLocale, locales, LOCALE_LABELS } from '~/i18n/routing';
 import { getUi } from '~/i18n/ui';
 import { localizePath } from '~/lib/url';
+import { categoryHref } from '~/lib/content';
 import LanguageSwitcher from './LanguageSwitcher.astro';
 import SearchButton from './SearchButton.astro';
 import { landingLink, landingLinkEnabled, zhLandingLink } from '~/config/project';
@@ -40,6 +41,11 @@ const samePagePathFor = (loc: Locale) => {
   const stripped = currentPath.replace(localePrefixRe, '') || '/';
   return localizePath(stripped, loc);
 };
+
+// Category links: a single-article category links its article (the hub 301s — lib/hub-redirects.ts).
+const navHrefs = Object.fromEntries(
+  await Promise.all(NAVIGATION_CONFIG.map(async (item) => [item.key, await categoryHref(item.key, locale)] as const)),
+);
 ---
 
 <header class="glass sticky top-0 z-40 w-full border-b border-border">
@@ -60,7 +66,7 @@ const samePagePathFor = (loc: Locale) => {
     <nav class="hidden flex-1 items-center gap-5 pl-4 md:flex">
       {
         NAVIGATION_CONFIG.map((item) => {
-          const path = localizePath(item.path, locale);
+          const path = navHrefs[item.key]!;
           // `path` ends with "/" (trailingSlash:'always') — appending again
           // would produce "//" and silently break child-page highlighting.
           const activePrefix = path.endsWith('/') ? path : path + '/';
@@ -117,7 +123,7 @@ const samePagePathFor = (loc: Locale) => {
           {
             NAVIGATION_CONFIG.map((item) => (
               <a
-                href={localizePath(item.path, locale)}
+                href={navHrefs[item.key]}
                 class="block px-3 py-2 text-sm transition hover:bg-muted"
               >
                 {nav[item.key] ?? item.key}

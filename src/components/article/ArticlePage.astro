@@ -31,7 +31,7 @@ import { NAVIGATION_CONFIG } from '~/config/navigation';
 import { siteUrl } from '~/config/site';
 import { type Locale } from '~/i18n/routing';
 import { getUi } from '~/i18n/ui';
-import { getRelatedEntries, getEntriesByCategory, isPossiblyOutdated, parseEntryId, tagHref, estimateReadMinutes, type WikiEntry, type ResolvedEntry } from '~/lib/content';
+import { getRelatedEntries, getEntriesByCategory, getHubRedirects, isPossiblyOutdated, parseEntryId, tagHref, estimateReadMinutes, type WikiEntry, type ResolvedEntry } from '~/lib/content';
 import LazyYouTube from '~/components/video/LazyYouTube.astro';
 import SponsorCard from '~/components/article/SponsorCard.astro';
 import { articleJsonLd, breadcrumbJsonLd, pageTitle, videoObjectJsonLd, imageObjectJsonLd, faqPageJsonLd } from '~/lib/seo';
@@ -63,6 +63,9 @@ const parsed = parseEntryId(entry.id);
 const slug = parsed?.slug ?? '';
 const category = entry.data.category;
 const categoryLabel = overview?.overviewTitle ?? nav[category] ?? category;
+// Single-article category: its hub 301s here (lib/hub-redirects.ts), so the
+// crumb would link back to this very page — show it as plain text instead.
+const hubFolded = (await getHubRedirects(locale)).has(category);
 
 const coverUrl = entry.data.image
   ? `${siteUrl}${entry.data.image.src}`
@@ -141,6 +144,7 @@ const jsonLd = [
     slug,
     locale,
     homeLabel: nav.home,
+    withCategory: !hubFolded,
   }),
   // One VideoObject per embedded video — Google Video search eligibility.
   ...(entry.data.videos ?? []).map((videoId: string) =>
@@ -193,7 +197,7 @@ const jsonLd = [
     <nav class="text-sm text-muted-foreground" aria-label={shared.breadcrumbAria ?? 'Breadcrumb'}>
       <a href={homeUrl(locale)} class="hover:text-nav">{nav.home}</a>
       <span class="mx-1">/</span>
-      <a href={listPath(category, locale)} class="hover:text-nav">{categoryLabel}</a>
+      {hubFolded ? <span>{categoryLabel}</span> : <a href={listPath(category, locale)} class="hover:text-nav">{categoryLabel}</a>}
     </nav>
 
     {/* Header */}

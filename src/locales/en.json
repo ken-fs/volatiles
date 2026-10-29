@@ -117,7 +117,10 @@
     "feedbackYes": "Yes",
     "feedbackNo": "No",
     "breadcrumbAria": "Breadcrumb",
-    "paginationAria": "Article pagination"
+    "paginationAria": "Article pagination",
+    "codesActive": "{count} working codes",
+    "codesNone": "No working codes right now",
+    "codesChecked": "Checked {date}"
   },
   "overview": {
     "guides": {

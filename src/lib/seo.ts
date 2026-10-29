@@ -107,31 +107,19 @@ export function breadcrumbJsonLd(opts: {
   locale: Locale;
   /** Localized "Home" label (locale JSON nav.home). */
   homeLabel?: string;
+  /** False when the category hub folds into this article (lib/hub-redirects.ts) — no middle crumb. */
+  withCategory?: boolean;
 }) {
-  const { category, categoryLabel, title, slug, locale, homeLabel = 'Home' } = opts;
+  const { category, categoryLabel, title, slug, locale, homeLabel = 'Home', withCategory = true } = opts;
+  const crumbs = [
+    { name: homeLabel, item: `${siteUrl}${locale === defaultLocale ? '' : `/${locale}`}` },
+    ...(withCategory ? [{ name: categoryLabel, item: `${siteUrl}${listPath(category, locale)}` }] : []),
+    { name: title, item: `${siteUrl}${detailPath(category, slug, locale)}` },
+  ];
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
-    itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: homeLabel,
-        item: `${siteUrl}${locale === defaultLocale ? '' : `/${locale}`}`,
-      },
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: categoryLabel,
-        item: `${siteUrl}${listPath(category, locale)}`,
-      },
-      {
-        '@type': 'ListItem',
-        position: 3,
-        name: title,
-        item: `${siteUrl}${detailPath(category, slug, locale)}`,
-      },
-    ],
+    itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, ...c })),
   };
 }
 

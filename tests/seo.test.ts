@@ -94,6 +94,20 @@ describe('SEO helpers', () => {
       expect(json.itemListElement[1].name).toBe('All Bosses');
       expect(json.itemListElement[2].name).toBe('Emberfang Guide');
     });
+    it('drops the category crumb when its hub folds into the article', () => {
+      const json = breadcrumbJsonLd({
+        category: 'codes',
+        categoryLabel: 'Codes',
+        title: 'All Codes',
+        slug: 'all-codes',
+        locale: 'en',
+        withCategory: false,
+      });
+      expect(json.itemListElement.map((i) => [i.position, i.name])).toEqual([
+        [1, 'Home'],
+        [2, 'All Codes'],
+      ]);
+    });
   });
 
   describe('itemListJsonLd', () => {

@@ -12,7 +12,7 @@ import ListPage from '~/components/article/ListPage.astro';
 import ArticlePage from '~/components/article/ArticlePage.astro';
 import { CONTENT_TYPES } from '~/config/navigation';
 import { defaultLocale, type Locale } from '~/i18n/routing';
-import { getEntryWithFallback, localesForEntry, localesForCategory, parseEntryId, type ResolvedEntry } from '~/lib/content';
+import { getEntryWithFallback, getHubRedirects, localesForEntry, localesForCategory, parseEntryId, type ResolvedEntry } from '~/lib/content';
 import { detailPath, languageAlternates, listPath } from '~/lib/url';
 
 export async function getStaticPaths() {
@@ -22,8 +22,12 @@ export async function getStaticPaths() {
 
   const paths: Array<{ params: { slug: string } }> = [];
 
-  // List page paths: one per category (English default locale).
+  // List page paths: one per category (English default locale). A category
+  // with a single article has no hub page — it 301s to that article
+  // (lib/hub-redirects.ts).
+  const folded = await getHubRedirects(defaultLocale);
   for (const ct of CONTENT_TYPES) {
+    if (folded.has(ct)) continue;
     paths.push({ params: { slug: ct } });
   }
 

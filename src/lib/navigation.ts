@@ -6,7 +6,7 @@
  */
 
 import { NAVIGATION_CONFIG } from '~/config/navigation';
-import { getEntriesByCategory, parseEntryId } from '~/i18n/content';
+import { getEntriesByCategory, parseEntryId, resolveHubHref } from '~/i18n/content';
 import type { Locale } from '~/i18n/routing';
 import type { WikiEntry } from '~/i18n/content';
 
@@ -36,7 +36,8 @@ export async function getDynamicNavigation(
     groups.push({
       key: item.key,
       label: labels[item.key] ?? capitalize(item.key),
-      path: item.path,
+      // Single-article category → the article itself (its hub 301s — lib/hub-redirects.ts).
+      path: await resolveHubHref(item.path, locale),
       icon: item.icon,
       count: entries.length,
       entries: entries.map((e) => {

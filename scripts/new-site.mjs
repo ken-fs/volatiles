@@ -268,7 +268,7 @@ const rel = !relPath ? '.' : relPath.startsWith('..') ? target : relPath;
 const steps = [
   `cd ${rel}${installed ? '' : ' && pnpm install'} && pnpm dev —— 本地看一眼首页和文章页（主题 ${theme.id}）`,
   official ? `官方游戏链接已写：${official}` : '填 src/config/site.ts 的 official（roblox.com/games/<placeId>/… 或 store.steampowered.com/app/<appid>/）——巡检靠它认游戏',
-  '改 src/config/site.ts（developer / genre / tagline）和 src/locales/en.json（首页文案、FAQ），删掉占位文章，按 AGENTS.md 写内容（badge API 拿实体名单）',
+  '改 src/config/site.ts（developer / genre / tagline）和 src/locales/en.json（首页文案、FAQ），删掉占位文章，按 AGENTS.md 写内容（badge API 拿实体名单）。首页 title / description / hero / tagline 别写 codes——codes 词只给 codes 页，首页带上会把它的词全抢走（dropafruit / animemysterious 2026-10）',
   '官方美术：Roblox /v1/games/<universeId>/media 截图 → src/assets/brand/cover-bg.png（首页 hero + 封面底图），badge 图标 → src/assets/brand/<category>-<slug>.png，然后 pnpm gen-covers',
   'codes 站：src/config/watch.json 填 2+ 个码源 + groupId，cron 每小时跑 node scripts/game-watch.mjs',
   '提交前：pnpm typecheck && pnpm build && pnpm test && pnpm check-links && pnpm template-audit（+ AGENTS.md 的孤岛页检查）',
