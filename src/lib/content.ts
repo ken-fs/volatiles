@@ -13,6 +13,7 @@ export {
   localesForEntry,
   localesForCategory,
   getRecentEntries,
+  getContentLastUpdated,
   getRelatedEntries,
   getTagsWithCounts,
   getEntriesByTag,

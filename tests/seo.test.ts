@@ -11,6 +11,9 @@ import {
   pageTitle,
 } from '~/lib/seo';
 import { fallbackDetailPaths } from '~/lib/fallback-paths';
+import { buildHomeFaq, formatHomeDate, latestContentDate } from '~/lib/home-faq';
+import { hasOwnMessage } from '~/i18n/ui';
+import en from '~/locales/en.json';
 import { site } from '~/config/site';
 
 /** Repo-root-relative source text (contract-test helper, handbook.test.ts style). */
@@ -33,6 +36,12 @@ describe('SEO helpers', () => {
       const json = websiteJsonLd('en');
       expect(json['@type']).toBe('WebSite');
       expect(json.inLanguage).toBe('en');
+      expect(json).not.toHaveProperty('dateModified');
+    });
+
+    it('carries dateModified (ISO) when the newest content date is passed', () => {
+      const json = websiteJsonLd('en', new Date('2026-11-06T00:00:00Z'));
+      expect(json.dateModified).toBe('2026-11-06T00:00:00.000Z');
     });
   });
 
@@ -198,6 +207,69 @@ describe('SEO helpers', () => {
       const b = fallbackDetailPaths(new Map(coverage), locales, 'en');
       expect(a).toEqual(b);
       expect(a).toEqual([...a].sort());
+    });
+  });
+
+  describe('homepage GEO: last updated + site FAQ', () => {
+    const d = (iso: string) => new Date(`${iso}T00:00:00Z`);
+
+    it('latestContentDate prefers lastModified and picks the newest across entries', () => {
+      expect(latestContentDate([])).toBeNull();
+      const newest = latestContentDate([
+        { data: { date: d('2026-10-01'), lastModified: d('2026-11-05') } },
+        { data: { date: d('2026-11-02') } },
+        { data: { date: d('2026-09-01'), lastModified: d('2026-10-20') } },
+      ]);
+      expect(newest?.toISOString().slice(0, 10)).toBe('2026-11-05');
+    });
+
+    it('formats the date so the checker sees "Last updated … 2026"', () => {
+      expect(formatHomeDate(d('2026-11-06'), 'en')).toBe('Nov 6, 2026');
+    });
+
+    const facts = {
+      locale: 'en',
+      game: 'Example Game',
+      developer: 'Example Studio',
+      sections: [
+        { label: 'Guides', count: 5 },
+        { label: 'Codes', count: 1 },
+      ],
+      updated: 'Nov 6, 2026',
+      codesTitle: 'Example Game Codes',
+    };
+
+    it('builds answers from real facts (count, sections, date, developer, codes page)', () => {
+      const items = buildHomeFaq(en.home.siteFaq, facts);
+      expect(items).toHaveLength(4);
+      expect(items[0]!.answer).toBe('6 pages right now: Guides (5) and Codes (1).');
+      expect(items[1]!.answer).toContain('Nov 6, 2026');
+      expect(items[2]!.answer).toContain('Example Studio');
+      expect(items[3]!.answer).toContain('"Example Game Codes"');
+      for (const i of items) expect(`${i.question} ${i.answer}`).not.toMatch(/\{\w+\}/);
+    });
+
+    it('drops questions whose fact is missing (no codes page, no date)', () => {
+      const items = buildHomeFaq(en.home.siteFaq, { ...facts, codesTitle: null, updated: null });
+      expect(items.map((i) => i.question)).toEqual(['What\'s on this Example Game wiki?', 'Is this the official Example Game site?']);
+    });
+
+    it('only treats a locale as translated when its own JSON has the key', () => {
+      expect(hasOwnMessage('en', 'home.siteFaq')).toBe(true);
+      expect(hasOwnMessage('xx', 'home.siteFaq')).toBe(false);
+    });
+
+    it('HomePage mirrors the visible FAQ as FAQPage and shows the date (contract)', () => {
+      const page = src('src/components/home/HomePage.astro');
+      expect(page).toContain("hasOwnMessage(locale, 'home.siteFaq')");
+      expect(page).toContain('faqPageJsonLd(siteFaqItems)');
+      expect(page).toContain('siteFaqItems.map(');
+      expect(page).toContain('{shared.lastUpdated}: <time');
+      for (const rel of ['src/pages/index.astro', 'src/pages/[locale]/index.astro']) {
+        const route = src(rel);
+        expect(route).toContain('getContentLastUpdated()');
+        expect(route).toContain('lastUpdated={lastUpdated}');
+      }
     });
   });
 

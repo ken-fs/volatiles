@@ -8,5 +8,6 @@
   "theme": "terminal",
   "themePickedBy": "--theme",
   "themesDir": "game-themes",
-  "themesCommit": "6ce2b8635b4fead924de84dc23425ce7639eb98a"
+  "themesCommit": "6ce2b8635b4fead924de84dc23425ce7639eb98a",
+  "syncNote": "2026-11-07 同步 243830d：首页 GEO（Last updated 日期 + WebSite dateModified + 首页 FAQ / FAQPage）"
 }

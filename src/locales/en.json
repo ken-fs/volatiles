@@ -276,6 +276,17 @@
           "answer": "You build the battlefield itself: each round you select one of three tiles, and tiles carry defensive structures, loot, and modifiers — including ones that make hordes spawn 100% more often on purpose."
         }
       ]
+    },
+    "siteFaq": {
+      "title": "About this wiki",
+      "coverQ": "What's on this {game} wiki?",
+      "coverA": "{count} pages right now: {sections}.",
+      "updatedQ": "When was this wiki last updated?",
+      "updatedA": "The latest change is from {date}. Each page also shows its own date near the top.",
+      "officialQ": "Is this the official {game} site?",
+      "officialA": "No. It's a fan-made wiki, not run by the game's developer, {developer}.",
+      "codesQ": "Where are the {game} codes?",
+      "codesA": "They're on our codes page, \"{title}\". It's the only code list on this site."
     }
   },
   "footer": {

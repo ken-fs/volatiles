@@ -46,6 +46,7 @@ function isPublished(e: WikiEntry): boolean {
 
 // parseEntryId lives in lib/content-utils.ts (pure, vitest-testable).
 import { parseEntryId } from '~/lib/content-utils';
+import { latestContentDate } from '~/lib/home-faq';
 export { parseEntryId };
 
 /**
@@ -143,6 +144,15 @@ export async function getRecentEntries(locale: Locale, limit = 6): Promise<WikiE
     .filter((e) => isPublished(e) && parseEntryId(e.id)?.locale === locale)
     .sort(newestFirst)
     .slice(0, limit);
+}
+
+/**
+ * Newest real content date across the whole site (every locale, published
+ * only) — the homepage "Last updated" line and WebSite dateModified.
+ */
+export async function getContentLastUpdated(): Promise<Date | null> {
+  const all = await getCollection('wiki');
+  return latestContentDate(all.filter(isPublished));
 }
 
 /**

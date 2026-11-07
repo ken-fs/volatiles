@@ -11,7 +11,8 @@
  *   2b. Page index   — every article of each section (≥2 entries) as a link chip
  *   3. Recent Updates + Trending links (two columns)
  *   4. Explore       — 4 content modules with displayTypes
- *   5. ClosingCta      — bottom call-to-action
+ *   5. Site FAQ      — 3–4 Q&A built from site data + FAQPage JSON-LD (GEO, 2026-11-07)
+ *   6. ClosingCta      — bottom call-to-action
  *
  * v0.2 refactor: trimmed from 8 sections to 5. Removed GameInfo (info
  * duplicated Hero stats), FAQ (moved to /faq), standalone TrendingNow
@@ -28,17 +29,21 @@ import AdsterraSlot from '~/components/ads/AdsterraSlot.astro';
 import { site } from '~/config/site';
 import { NAVIGATION_CONFIG } from '~/config/navigation';
 import { type Locale } from '~/i18n/routing';
-import { getUi, type HomeUi } from '~/i18n/ui';
+import { getUi, hasOwnMessage, type HomeUi } from '~/i18n/ui';
 import { categoryHref, getEntriesByCategory, getRecentEntries, parseEntryId, resolveHubHref } from '~/lib/content';
 import { localizePath, listPath, detailPath } from '~/lib/url';
+import { faqPageJsonLd } from '~/lib/seo';
+import { buildHomeFaq, formatHomeDate } from '~/lib/home-faq';
 
 interface Props {
   locale: Locale;
   jsonLd?: Record<string, unknown>[];
   /** hreflang alternates (built by the route page). */
   alternates?: Array<{ hreflang: string; href: string }>;
+  /** Newest article date (getContentLastUpdated) — the visible "Last updated" line + site FAQ. */
+  lastUpdated?: Date | null;
 }
-const { locale, jsonLd = [], alternates = [] } = Astro.props;
+const { locale, jsonLd = [], alternates = [], lastUpdated = null } = Astro.props;
 const ui = getUi(locale);
 // Typed straight from en.json (HomeUi) — no `as any`: a renamed key now
 // fails typecheck instead of silently blanking the block (check-i18n only
@@ -62,19 +67,38 @@ const shortTitle = (t: string) => {
   const rest = head.toLowerCase().startsWith(gamePrefix) ? head.slice(gamePrefix.length).trim() : '';
   return rest || head;
 };
-const pageIndex = (
-  await Promise.all(
-    NAVIGATION_CONFIG.map(async (item) => ({
-      key: item.key,
-      label: ui.nav[item.key as keyof typeof ui.nav] ?? item.key,
-      entries: (await getEntriesByCategory(item.key, locale))
-        .map((entry) => ({ entry, parsed: parseEntryId(entry.id) }))
-        .filter((x) => x.parsed)
-        .map(({ entry, parsed }) => ({ href: detailPath(parsed!.category, parsed!.slug, locale), label: shortTitle(entry.data.title) }))
-        .sort((a, b) => a.label.localeCompare(b.label, locale)),
-    })),
-  )
-).filter((s) => s.entries.length >= 2);
+const sections = await Promise.all(
+  NAVIGATION_CONFIG.map(async (item) => ({
+    key: item.key,
+    label: ui.nav[item.key as keyof typeof ui.nav] ?? item.key,
+    entries: (await getEntriesByCategory(item.key, locale))
+      .map((entry) => ({ entry, parsed: parseEntryId(entry.id) }))
+      .filter((x) => x.parsed)
+      .map(({ entry, parsed }) => ({ href: detailPath(parsed!.category, parsed!.slug, locale), label: shortTitle(entry.data.title), title: entry.data.title }))
+      .sort((a, b) => a.label.localeCompare(b.label, locale)),
+  })),
+);
+const pageIndex = sections.filter((s) => s.entries.length >= 2);
+
+// GEO (2026-11-07): a visible "Last updated" date (+ WebSite dateModified,
+// set by the route page) and a short FAQ built from real site data, mirrored
+// as FAQPage JSON-LD. The FAQ only renders where the locale JSON has its own
+// `home.siteFaq` — English fallback text is not marked up as another
+// locale's FAQ. Answers are counts / dates / config, never hand-typed numbers.
+const updatedText = lastUpdated ? formatHomeDate(lastUpdated, locale) : null;
+const codesSection = sections.find((s) => s.key === 'codes');
+const siteFaq = home.siteFaq;
+const siteFaqItems = hasOwnMessage(locale, 'home.siteFaq')
+  ? buildHomeFaq(siteFaq, {
+      locale,
+      game: site.game.name,
+      developer: site.game.developer,
+      sections: sections.filter((s) => s.entries.length > 0).map((s) => ({ label: s.label, count: s.entries.length })),
+      updated: updatedText,
+      codesTitle: codesSection?.entries.length === 1 ? codesSection.entries[0]!.title : null,
+    })
+  : [];
+const pageJsonLd = siteFaqItems.length > 0 ? [...jsonLd, faqPageJsonLd(siteFaqItems)] : jsonLd;
 // Second nav category (guides). Single-article categories link the article — lib/hub-redirects.ts.
 const guidesHref = await categoryHref(NAVIGATION_CONFIG[1]?.key ?? 'guides', locale);
 
@@ -126,7 +150,7 @@ function trendingLabel(link: QuickLink): string {
   title={meta.title}
   description={meta.description}
   alternates={alternates}
-  jsonLd={jsonLd}
+  jsonLd={pageJsonLd}
 >
   {/* ─────────────────────────────── Hero ───────────────────────────────
       Styled by the game theme: `.tag` badge, theme display font on <h1>,
@@ -246,6 +270,11 @@ function trendingLabel(link: QuickLink): string {
             >{shared.browseAll} <span class="arrow">→</span></a
           >
         </div>
+        {updatedText && lastUpdated && (
+          <p class="mt-1 text-sm text-muted-foreground">
+            {shared.lastUpdated}: <time datetime={lastUpdated.toISOString().slice(0, 10)}>{updatedText}</time>
+          </p>
+        )}
         <div class="mt-4 grid gap-4 sm:grid-cols-2">
           {
             recent.length === 0 ? (
@@ -317,6 +346,27 @@ function trendingLabel(link: QuickLink): string {
         <p class="mt-1 text-sm text-muted-foreground">{explore.description}</p>
         <div class="mt-8">
           <ExploreModules modules={explore.modules} locale={locale} />
+        </div>
+      </section>
+    )
+  }
+
+  {/* ──────────────────────────── Site FAQ ────────────────────────────
+      Same strings feed the FAQPage JSON-LD above. Native <details>, zero JS. */}
+  {
+    siteFaqItems.length > 0 && (
+      <section class="section border-t border-border" aria-label={siteFaq.title}>
+        <h2 class="text-2xl">{siteFaq.title}</h2>
+        <div class="mt-6 space-y-2">
+          {siteFaqItems.map((item) => (
+            <details class="group tile">
+              <summary class="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 text-sm font-semibold text-foreground [&::-webkit-details-marker]:hidden">
+                {item.question}
+                <Icon name="lucide:chevron-down" class="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
+              </summary>
+              <div class="border-t border-border px-4 py-3 text-sm text-foreground">{item.answer}</div>
+            </details>
+          ))}
         </div>
       </section>
     )

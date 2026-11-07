@@ -73,6 +73,23 @@ export function getHomeFaq(locale: string): HomeUi['faq'] {
   return getUi(locale).home.faq;
 }
 
+/**
+ * True when the locale's OWN JSON has this dotted path (not the English
+ * deep-merge fallback). The homepage FAQ only renders where it's actually
+ * translated — an English FAQ on /ja would be fallback text marked up as
+ * that locale's FAQPage.
+ */
+export function hasOwnMessage(locale: string, path: string): boolean {
+  if (locale === defaultLocale) return true;
+  if (!isLocaleSafe(locale)) return false;
+  let cur: unknown = messages[locale];
+  for (const k of path.split('.')) {
+    if (!cur || typeof cur !== 'object' || !(k in (cur as Record<string, unknown>))) return false;
+    cur = (cur as Record<string, unknown>)[k];
+  }
+  return true;
+}
+
 /** Translation function: t('nav.bosses') → localized string. */
 export function t(locale: string, key: string): unknown {
   const ui = getUi(locale);

@@ -11,12 +11,15 @@
 import HomePage from '~/components/home/HomePage.astro';
 import { defaultLocale, locales } from '~/i18n/routing';
 import { videoGameJsonLd, websiteJsonLd } from '~/lib/seo';
+import { getContentLastUpdated } from '~/lib/content';
 import { homeUrl, languageAlternates } from '~/lib/url';
 
 const locale = defaultLocale;
-const jsonLd = [websiteJsonLd(locale), videoGameJsonLd()];
+// Newest article date → visible "Last updated" + WebSite dateModified (GEO).
+const lastUpdated = await getContentLastUpdated();
+const jsonLd = [websiteJsonLd(locale, lastUpdated), videoGameJsonLd()];
 // hreflang alternates: Home → / (en) or /<locale> for each locale.
 const alternates = languageAlternates((loc) => homeUrl(loc), locales);
 ---
 
-<HomePage locale={locale} jsonLd={jsonLd} alternates={alternates} />
+<HomePage locale={locale} jsonLd={jsonLd} alternates={alternates} lastUpdated={lastUpdated} />

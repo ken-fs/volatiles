@@ -26,8 +26,13 @@ export function organizationJsonLd() {
   };
 }
 
-/** WebSite JSON-LD — injected on the homepage only. */
-export function websiteJsonLd(locale: Locale = defaultLocale) {
+/**
+ * WebSite JSON-LD — injected on the homepage only. `dateModified` = newest
+ * article date (getContentLastUpdated), the same date the homepage shows as
+ * "Last updated" (GEO, 2026-11-07). It goes on WebSite, not VideoGame: the
+ * wiki changed that day, the game didn't.
+ */
+export function websiteJsonLd(locale: Locale = defaultLocale, dateModified?: Date | null) {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
@@ -35,6 +40,7 @@ export function websiteJsonLd(locale: Locale = defaultLocale) {
     url: siteUrl,
     description: site.description,
     inLanguage: locale,
+    ...(dateModified ? { dateModified: dateModified.toISOString() } : {}),
   };
 }
 
@@ -180,7 +186,7 @@ export function itemListJsonLd(opts: {
   };
 }
 
-/** FAQPage JSON-LD — for homepage FAQ section (eligible for SERP rich results). */
+/** FAQPage JSON-LD — every question must also be rendered visibly on the same page (homepage siteFaq, /faq, article FAQ). */
 export function faqPageJsonLd(items: Array<{ question: string; answer: string }>) {
   return {
     '@context': 'https://schema.org',
